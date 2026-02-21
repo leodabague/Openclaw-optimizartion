@@ -1,9 +1,12 @@
-OPENCLAW SECURITY
-HARDENING GUIDE
+# OPENCLAW SECURITY
+
+## HARDENING GUIDE
+
 Post-Deployment Security Lockdown
 With Copy-Paste Agent Prompts at Every Step
 ScaleUP Media • 2026 Edition
-How to Use This Guide
+
+## How to Use This Guide
 This guide is designed to be worked through section by section. Each section contains:
  * An explanation of WHY this security control matters.
  * The technical details of WHAT to configure.
@@ -13,9 +16,9 @@ This guide is designed to be worked through section by section. Each section con
 > 
 Work through them in order. After completing all sections, use the master checklist in Section 11 to verify everything is locked down.
 ✅ PRO TIP: For the training video: walk through each section, explain the concept, then show yourself pasting the agent prompt and reviewing the output.
-1. Pre-Hardening Assessment
+# 1. Pre-Hardening Assessment
 Before you touch a single setting, you need to understand your current attack surface. Do NOT skip this.
-1.1 Document Your Current Configuration
+## 1.1 Document Your Current Configuration
 Pull up your OpenClaw dashboard and document every single integration, API connection, and webhook.
 Configuration Audit Checklist
  * List all active API keys and their permission scopes.
@@ -35,7 +38,7 @@ Configuration Audit Checklist
 > Do NOT modify any code yet. This is audit only.
 > 
 🛑 CRITICAL: If your agent finds API keys hardcoded anywhere in your frontend code, STOP. That is your number one priority to fix.
-1.2 Threat Model for OpenClaw Deployments
+## 1.2 Threat Model for OpenClaw Deployments
 | Threat Category | Risk Level | Description | Impact |
 |---|---|---|---|
 | API Key Theft | CRITICAL | Exposed keys allow unlimited model access | Runaway costs, data exfiltration |
@@ -45,7 +48,7 @@ Configuration Audit Checklist
 | Rate Limit Bypass | MEDIUM | Attackers overwhelm your instance | Service disruption, inflated costs |
 | Session Hijacking | MEDIUM | Stolen session tokens grant full access | Account takeover |
 | Data Exfiltration | HIGH | Context/memory data extracted via prompts | Customer data breach |
-1.3 Security Baseline Score
+## 1.3 Security Baseline Score
 Score your current deployment (0-100). Re-score after completing the process.
 | Security Control | Status | Points |
 |---|---|---|
@@ -62,9 +65,9 @@ Score your current deployment (0-100). Re-score after completing the process.
 | Backup and recovery plan documented | Yes / No | 5 |
 | Error messages sanitized (no stack traces exposed) | Yes / No | 5 |
 ✅ PRO TIP: Score < 50 means critical gaps. < 30 is an emergency.
-2. API Key & Secrets Management
+# 2. API Key & Secrets Management
 Your API keys are the keys to the kingdom.
-2.1 Key Rotation Protocol
+## 2.1 Key Rotation Protocol
  * Generate a new API key in provider’s dashboard.
  * Add as a secondary key in OpenClaw.
  * Update deployment to use the new key.
@@ -91,7 +94,7 @@ Your API keys are the keys to the kingdom.
 | API Key (Dev) | Testing/Sandbox | Dev team | 30 days |
 | Webhook Secret | Signature validation | Integration endpoints | 90 days |
 | Read-Only Key | Dashboard/Logs | Support team | 120 days |
-2.3 Secrets Scanning
+## 2.3 Secrets Scanning
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
 > Set up automated secrets scanning for my OpenClaw repository:
 >  * CREATE a pre-commit hook script that scans for API key patterns, secret variable names, and private keys. Block the commit if found.
@@ -100,8 +103,8 @@ Your API keys are the keys to the kingdom.
 >  * SCAN the entire git history for leaked secrets and provide instructions for cleaning history if found.
 > Ensure scanning does NOT flag .env.example files.
 > 
-3. Authentication & Access Control
-3.1 Authentication Layer Setup
+# 3. Authentication & Access Control
+## 3.1 Authentication Layer Setup
  * JWT_EXPIRY: 15m (Short-lived)
  * JWT_ALGORITHM: RS256 (Asymmetric signing)
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
@@ -113,7 +116,7 @@ Your API keys are the keys to the kingdom.
 >  * APPLY middleware to ALL routes except health, login, and refresh.
 >  * GENERATE 2048-bit RSA keys for signing.
 > 
-3.2 Role-Based Access Control (RBAC)
+## 3.2 Role-Based Access Control (RBAC)
 | Role | Model Access | Admin Panel | API Keys |
 |---|---|---|---|
 | Owner | All models | Full access | Create/Rotate/Delete |
@@ -128,7 +131,7 @@ Your API keys are the keys to the kingdom.
 >  * Add per-role rate limits (e.g., Owner: 100 req/min, Consumer: 20 req/min).
 >  * Create admin endpoints for role management (Owner only).
 > 
-3.3 Session Management
+## 3.3 Session Management
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
 > Harden session management:
 >  * Configure cookie-based storage: httpOnly, secure, sameSite: 'strict'.
@@ -137,8 +140,8 @@ Your API keys are the keys to the kingdom.
 >  * Create endpoints to list and revoke sessions.
 >  * Remove tokens from localStorage; migrate to httpOnly cookies.
 > 
-4. Network Security & Transport
-4.1 TLS/HTTPS Enforcement
+# 4. Network Security & Transport
+## 4.1 TLS/HTTPS Enforcement
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
 > Harden TLS/HTTPS:
 >  * Enforce TLS 1.2 minimum (TLS 1.3 preferred).
@@ -147,7 +150,7 @@ Your API keys are the keys to the kingdom.
 >  * Redirect all HTTP to HTTPS via 301.
 >  * Set up automatic certificate renewal.
 > 
-4.2 CORS Configuration
+## 4.2 CORS Configuration
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
 > Lock down CORS:
 >  * Replace wildcard (*) with a strict whitelist from environment variables.
@@ -155,7 +158,7 @@ Your API keys are the keys to the kingdom.
 >  * Implement dynamic origin validation.
 >  * Test by making a fetch request from an unauthorized origin.
 > 
-4.3 Firewall & IP Restrictions
+## 4.3 Firewall & IP Restrictions
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
 > Implement IP restrictions and security headers:
 >  * Create middleware to whitelist IPs for /admin/* routes.
@@ -164,8 +167,8 @@ Your API keys are the keys to the kingdom.
 >  * Sanitize /health endpoint (minimal info only).
 >  * Add security headers: X-Content-Type-Options, X-Frame-Options: DENY, CSP: default-src 'self'.
 > 
-5. Rate Limiting & Abuse Prevention
-5.1 Multi-Layer Rate Limiting
+# 5. Rate Limiting & Abuse Prevention
+## 5.1 Multi-Layer Rate Limiting
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
 > Implement comprehensive rate limiting:
 >  * Layer 1 (IP): 100 req/min (sliding window).
@@ -173,7 +176,7 @@ Your API keys are the keys to the kingdom.
 >  * Layer 3 (Model): Haiku (60), Sonnet (30), Opus (10) req/min.
 >  * Use Redis for state. Implement progressive blocking (10+ hits = 5min block).
 > 
-5.2 Cost Circuit Breakers
+## 5.2 Cost Circuit Breakers
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
 > Implement cost circuit breakers:
 >  * Track cost per request based on tokens and model rates.
@@ -182,7 +185,7 @@ Your API keys are the keys to the kingdom.
 >  * HARD LIMIT ($500/day): Block all non-Haiku.
 >  * EMERGENCY ($1000/day): Total shutoff, manual reset required.
 > 
-5.3 Prompt Injection Defense
+## 5.3 Prompt Injection Defense
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
 > Implement prompt injection defenses:
 >  * Input Validation: Max 4000 chars, block patterns like "ignore previous instructions" or "jailbreak mode".
@@ -190,8 +193,8 @@ Your API keys are the keys to the kingdom.
 >  * Canary Tokens: Embed a random string in system prompt; block if it appears in output.
 >  * Quarantine: Temporarily block keys after 3 injection attempts.
 > 
-6. Logging, Monitoring & Incident Response
-6.1 What to Log
+# 6. Logging, Monitoring & Incident Response
+## 6.1 What to Log
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
 > Implement security logging:
 >  * Structured JSON logs (timestamp, level, category, IP, user_id).
@@ -199,15 +202,15 @@ Your API keys are the keys to the kingdom.
 >  * ALERTS: Critical (10+ failed logins), High (cost spikes), Medium (daily digests).
 >  * Log rotation policy: Compress older than 1 day, retain security logs for 1 year.
 > 
-6.2 Incident Response Playbook
+## 6.2 Incident Response Playbook
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
 > Create automated incident response:
 >  * Detect key compromise, brute force, and cost anomalies.
 >  * AUTO ACTIONS: Disable compromised keys, block attacking IPs, activate circuit breakers.
 >  * Create /admin/incidents endpoint and a master Kill Switch endpoint (Owner only).
 > 
-7. Data Protection & Privacy
-7.1 Data Encryption
+# 7. Data Protection & Privacy
+## 7.1 Data Encryption
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
 > Implement data protection:
 >  * Field-level encryption: Hash API keys (bcrypt), encrypt user tokens (AES-256-GCM).
@@ -215,23 +218,23 @@ Your API keys are the keys to the kingdom.
 >  * Retention: Auto-purge prompt logs > 7 days, anonymize analytics > 90 days.
 >  * PII Detection: Scan and redact SSN, credit cards, and emails from logs.
 > 
-8. Deployment & Infrastructure Hardening
-8.1 Container Security (Docker)
+# 8. Deployment & Infrastructure Hardening
+## 8.1 Container Security (Docker)
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
 > Harden Docker configuration:
 >  * Use specific image tags (no 'latest'), non-root user, multi-stage builds.
 >  * Compose settings: no-new-privileges:true, read_only: true, resource limits (512M RAM).
 >  * Add .dockerignore for secrets. Scan image for CVEs (Trivy/Scout).
 > 
-8.2 & 8.3 Dependency Management
+## 8.2 & 8.3 Dependency Management
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
 > Harden dependencies:
 >  * Run full audit (npm audit). Fix vulnerabilities.
 >  * Create CI workflow to fail builds on High/Critical vulnerabilities.
 >  * Pin GitHub Actions to commit SHAs. Add security:audit scripts to package.json.
 > 
-9. Backup & Disaster Recovery
-9.1 Backup Strategy
+# 9. Backup & Disaster Recovery
+## 9.1 Backup Strategy
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
 > Set up automated backups:
 >  * Daily compressed and encrypted database dumps to S3/GCS.
@@ -239,8 +242,8 @@ Your API keys are the keys to the kingdom.
 >  * Daily verification cron job (restore to test DB and check health).
 >  * Document a step-by-step recovery runbook.
 > 
-10. Ongoing Security Maintenance
-10.1 Security Maintenance Calendar
+# 10. Ongoing Security Maintenance
+## 10.1 Security Maintenance Calendar
 > 🤖 AGENT PROMPT — Copy & paste this to your AI agent:
 > Create automated maintenance:
 >  * Weekly security report script (failed auths, costs, vulnerabilities).
@@ -248,7 +251,7 @@ Your API keys are the keys to the kingdom.
 >  * Key rotation reminder system.
 >  * /admin/security-status endpoint for real-time overview.
 > 
-11. Master Security Hardening Checklist
+# 11. Master Security Hardening Checklist
  * [ ] Complete pre-hardening security audit
  * [ ] Rotate all API keys and move to env vars
  * [ ] Set up automated secrets scanning
